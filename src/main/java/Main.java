@@ -1,18 +1,13 @@
-import org.jbibtex.ParseException;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
 public class Main {
     private static final HashMap<Cmd, Supplier<Boolean>> cmdMap = new HashMap<>();
-
-    private static boolean loadLibs() throws ParseException {
-        org.jbibtex.BibTeXParser parser = new org.jbibtex.BibTeXParser();
-        return false;
-    }
+    private static final PropertyLoader config = new PropertyLoader();
 
     private static void spawnCmds() {
-        Runner runner = new Runner();
+        Runner runner = new Runner(config);
         cmdMap.put(Cmd.CHECK_LIB, runner::checkLib);
         cmdMap.put(Cmd.UPDATE_NOTES, runner::updateNotes);
         cmdMap.put(Cmd.CONFIG, runner::manageConfig);
@@ -25,7 +20,12 @@ public class Main {
         do {
             userCmd = readCmd();
             if (userCmd != Cmd.QUIT) {
-                cmdMap.get(userCmd).get();
+                if (cmdMap.get(userCmd).get()) {
+                    System.out.printf("Command %s completed successfully.\n", userCmd.toString());
+                } else {
+                    System.out.printf("Command %s failed. Please try again.\n", userCmd.toString());
+                }
+
             }
         } while (userCmd != Cmd.QUIT);
     }
@@ -45,7 +45,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        PropertyLoader config = new PropertyLoader();
+//        PropertyLoader config = new PropertyLoader();
         String version = config.getProperty("app.version");
 
         System.out.println("  ____ _ _     __        ___           _           \n" +
@@ -57,18 +57,7 @@ public class Main {
         System.out.printf("Welcome to CiteWinder %s\n", version);
         // TODO check for default values
 
-        boolean parseSuccess;
-        try {
-            parseSuccess = loadLibs();
-        } catch (ParseException e) {
-            e.printStackTrace();
-            parseSuccess = false;
-        }
-        if (!parseSuccess) {
-            System.out.println("The system encountered a problem trying to parse your library. Please try again.");
-        } else {
-            runCmd();
-        }
+        runCmd();
 
     }
 }
