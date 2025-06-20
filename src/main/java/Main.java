@@ -4,21 +4,18 @@ import java.util.HashMap;
 import java.util.function.Supplier;
 
 public class Main {
-    private static final HashMap<Cmd, Supplier<Void>> cmdMap = new HashMap<>();
+    private static final HashMap<Cmd, Supplier<Boolean>> cmdMap = new HashMap<>();
+
+    private static boolean loadLibs() throws ParseException {
+        org.jbibtex.BibTeXParser parser = new org.jbibtex.BibTeXParser();
+        return false;
+    }
 
     private static void spawnCmds() {
-        cmdMap.put(Cmd.CHECK_LIB, () -> {
-            System.out.println("Checking library...");
-            return null;
-        });
-        cmdMap.put(Cmd.UPDATE_NOTES, () -> {
-            System.out.println("Updating notes...");
-            return null;
-        });
-        cmdMap.put(Cmd.CONFIG, () -> {
-            System.out.println("Configuring...");
-            return null;
-        });
+        Runner runner = new Runner();
+        cmdMap.put(Cmd.CHECK_LIB, runner::checkLib);
+        cmdMap.put(Cmd.UPDATE_NOTES, runner::updateNotes);
+        cmdMap.put(Cmd.CONFIG, runner::manageConfig);
     }
 
     private static void runCmd() {
@@ -47,7 +44,7 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) {
         PropertyLoader config = new PropertyLoader();
         String version = config.getProperty("app.version");
 
@@ -60,8 +57,18 @@ public class Main {
         System.out.printf("Welcome to CiteWinder %s\n", version);
         // TODO check for default values
 
-        runCmd();
+        boolean parseSuccess;
+        try {
+            parseSuccess = loadLibs();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            parseSuccess = false;
+        }
+        if (!parseSuccess) {
+            System.out.println("The system encountered a problem trying to parse your library. Please try again.");
+        } else {
+            runCmd();
+        }
 
-        org.jbibtex.BibTeXParser parser = new org.jbibtex.BibTeXParser();
     }
 }
