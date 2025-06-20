@@ -1,4 +1,6 @@
-package PACKAGE_NAME;
-
 public enum Cmd {
+    CHECK_LIB,
+    UPDATE_NOTES,
+    CONFIG,
+    QUIT
 }
