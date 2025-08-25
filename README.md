@@ -6,3 +6,6 @@ I'm using this project as a testground for trying out AI pair programming, so po
 
 ## Setup
 Coming soon - executable jar. Currently, built on Windows with Microsoft OpenJDK 21.
+
+## Status
+Probably working?
