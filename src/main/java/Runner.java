@@ -81,6 +81,9 @@ public class Runner {
         } catch (IOException e) {
             System.out.println("Error copying memory file: " + e.getMessage());
             return false;
+        } catch (IllegalStateException e) {
+            System.out.println("Bad memory file: " + e.getMessage());
+
         }
     }
 

@@ -1,6 +1,8 @@
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.function.Supplier;
+import java.io.*;
+import java.nio.file.*;
 
 public class Main {
     private static final HashMap<Cmd, Supplier<Boolean>> cmdMap = new HashMap<>();
@@ -11,6 +13,46 @@ public class Main {
         cmdMap.put(Cmd.CHECK_LIB, runner::checkLib);
         cmdMap.put(Cmd.UPDATE_NOTES, runner::updateNotes);
         cmdMap.put(Cmd.CONFIG, runner::manageConfig);
+    }
+
+    private static void manageConfig() {
+        String appDataPath = System.getenv("APPDATA");
+        if (appDataPath == null || appDataPath.isEmpty()) {
+            System.err.println("%APPDATA% environment variable is not set.");
+            return;
+        }
+
+        Path citewinderPath = Paths.get(appDataPath, "citewinder");
+        if (!Files.exists(citewinderPath)) {
+            try {
+                Files.createDirectories(citewinderPath);
+                System.out.println("Created directory: " + citewinderPath);
+
+                // Copy application.properties
+                try (InputStream appPropsStream = Main.class.getClassLoader().getResourceAsStream("application.properties")) {
+                    if (appPropsStream == null) {
+                        System.err.println("application.properties not found in resources.");
+                        return;
+                    }
+                    Files.copy(appPropsStream, citewinderPath.resolve("application.properties"), StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("Copied application.properties to: " + citewinderPath);
+                }
+
+                // Copy memory.bibtex
+                try (InputStream memoryBibtexStream = Main.class.getClassLoader().getResourceAsStream("memory.bibtex")) {
+                    if (memoryBibtexStream == null) {
+                        System.err.println("memory.bibtex not found in resources.");
+                        return;
+                    }
+                    Files.copy(memoryBibtexStream, citewinderPath.resolve("memory.bibtex"), StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("Copied memory.bibtex to: " + citewinderPath);
+                }
+            } catch (IOException e) {
+                System.err.println("Error managing configuration: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Configuration directory already exists: " + citewinderPath);
+        }
     }
 
     private static void runCmd() {
