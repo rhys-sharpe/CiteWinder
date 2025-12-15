@@ -15,7 +15,7 @@ public class Main {
         cmdMap.put(Cmd.CONFIG, runner::manageConfig);
     }
 
-    private static void manageConfig() {
+    private static void initializeConfig() {
         String appDataPath = System.getenv("APPDATA");
         if (appDataPath == null || appDataPath.isEmpty()) {
             System.err.println("%APPDATA% environment variable is not set.");
@@ -98,7 +98,7 @@ public class Main {
 
         System.out.printf("Welcome to CiteWinder %s\n", version);
         // TODO check for default values
-
+        initializeConfig();
         runCmd();
 
     }
