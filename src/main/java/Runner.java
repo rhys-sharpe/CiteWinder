@@ -83,7 +83,7 @@ public class Runner {
             return false;
         } catch (IllegalStateException e) {
             System.out.println("Bad memory file: " + e.getMessage());
-
+            return false;
         }
     }
 
